@@ -60,6 +60,8 @@ keepalive=25
 
 `endpoint` is the WireGuard endpoint. The port is taken from the configuration of the WireGuard interface itself. `pubkey` is the public key of the VPN endpoint, `route` corresponds to the `--route` argument and is the `allowed-ips` setting the client is supposed to apply on its end. `ip` is the address assigned to the client and `keepalive` is the keepalive interval the client is supposed to configure.
 
+The client may optionally include a pre-shared key (PSK) by appending it on a second line of the POST body. If a PSK is provided, the server applies it to the WireGuard peer. This makes the VPN connection inherit the post-quantum security of the HTTPS/TLS handshake if it used an appropriate key-exchange algorithm.
+
 See `autowg-client` for an example implementation of a client that is meant to be run in regular intervals, such as using a cron job.
 
 Furthermore, a monitoring endpoint is available at `/v1/peers.json` when the environment variable `HTTP_AUTH` is set. The client is expected to provide an `Authorization: Basic xxx` header where `xxx` has to match the value of `HTTP_AUTH` exactly. A response will look like this:
@@ -72,12 +74,13 @@ Furthermore, a monitoring endpoint is available at `/v1/peers.json` when the env
         "last_handshake": 1735776000,
         "pubkey": "Onuo9R6qqH7/r5bqItrl1pz09OKhyoAO24swZhxtYVk=",
         "rx_bytes": 1234567,
-        "tx_bytes": 654321
+        "tx_bytes": 654321,
+        "using_psk": true
     }
 }
 ```
 
-Where `23` is the name of the peer (as per the CN), `created` is the timestamp when it was (re-)registered and the remaining values are the corresponding peer parameters similar to what `wg show` will print.
+Where `23` is the name of the peer (as per the CN), `created` is the timestamp when it was (re-)registered, and the remaining values are the corresponding peer parameters similar to what `wg show` will print. `using_psk` indicates whether a pre-shared key is currently active for this peer.
 
 ## Example setup
 
